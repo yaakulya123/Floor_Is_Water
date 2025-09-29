@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floor Is Water - Tiled Edition</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #333;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        canvas {
+            border: 2px solid #666;
+        }
+        .instructions {
+            margin-top: 10px;
+            text-align: center;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Floor Is Water - City Defense</h1>
+    <div class="instructions">
+        <p><strong>🌊 Save the city from flooding! 🌊</strong></p>
+        <p>• Click to place <span style="color: brown;">wood</span> (temporary) or <span style="color: black;">stone</span> (permanent) barriers</p>
+        <p>• Wood barriers resist water for 4 seconds before dissolving</p>
+        <p>• Water spreads every 2 seconds - keep as many tiles dry as possible!</p>
+    </div>
+    <script src="sketch.js"></script>
+</body>
+</html>
