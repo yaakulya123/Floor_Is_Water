@@ -1,9 +1,3 @@
 {
-  "functions": {
-    "*.html": {
-      "headers": {
-        "Cache-Control": "s-maxage=86400"
-      }
-    }
-  }
+  "cleanUrls": true
 }
