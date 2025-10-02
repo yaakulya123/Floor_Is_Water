@@ -45,11 +45,11 @@ function preload() {
   );
 
   // Load the CSV file (each row has numbers separated by commas)
-  mapData = loadTable("pixelcity_base_City.csv", "csv");
+  mapData = loadTable("pixelcity_base_35.csv", "csv");
 }
 
 function setup() {
-  createCanvas(700, 700); // adjust depending on map size
+  createCanvas(840, 840); // adjust depending on map size
 
   // Check if data loaded properly
   if (!mapData || mapData.getRowCount() === 0) {
