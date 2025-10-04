@@ -1,5 +1,11 @@
 let tileset;      // image containing all 360 tiles
 let woodImg, stoneImg; // PNG images for barriers
+
+// Sound variables
+let mainThemeMusic;
+let hoverSound;
+let placeWoodSound;
+let placeSteelSound;
 let tileSize = 8; // width/height of a single tile
 let tilesPerRow = 24; // how many tiles per row in the tileset (360 / 20 = 18 rows)
 let mapData;       // array loaded from CSV
@@ -17,11 +23,17 @@ let stoneAvailable = 0;
 let currentFlag = 0; // current water level flag
 let waterLevel = 0; // global water level (row from bottom)
 let columnBlocked = []; // tracks which columns have stone barriers
-let selectedRow = -1; // selected cell row
-let selectedCol = -1; // selected cell column
+let hoveredRow = -1; // hovered cell row
+let hoveredCol = -1; // hovered cell column
 let gameStartTime = 0; // when the game started
 let gameOver = false; // game over state
 let gameOverReason = ""; // reason for game over
+let lastHoveredCell = ""; // track last hovered cell for sound
+
+// Game states
+let gameState = "mainMenu"; // mainMenu, story, playing, gameOver, credits, win
+let menuButtons = [];
+let gameWon = false;
 
 // Water tile index for overlay
 const WATER_TILE = 340;
@@ -44,6 +56,27 @@ function preload() {
     () => console.log("Failed to load steel image")
   );
 
+  // Load sound files (local)
+  mainThemeMusic = loadSound("mainThemeMusic.mp3",
+    () => console.log("Main theme loaded"),
+    () => console.log("Failed to load main theme")
+  );
+
+  hoverSound = loadSound("tileHoverSound.ogg",
+    () => console.log("Hover sound loaded"),
+    () => console.log("Failed to load hover sound")
+  );
+
+  placeWoodSound = loadSound("placeWoodSound.ogg",
+    () => console.log("Wood placement sound loaded"),
+    () => console.log("Failed to load wood placement sound")
+  );
+
+  placeSteelSound = loadSound("impactPlate_medium_000.ogg",
+    () => console.log("Steel placement sound loaded"),
+    () => console.log("Failed to load steel placement sound")
+  );
+
   // Load the CSV file (each row has numbers separated by commas)
   mapData = loadTable("pixelcity_base_35.csv", "csv");
 }
@@ -51,9 +84,10 @@ function preload() {
 function setup() {
   createCanvas(840, 840); // adjust depending on map size
 
-  // Check if data loaded properly
+  // Check if data loaded properly - wait for it to load
   if (!mapData || mapData.getRowCount() === 0) {
-    console.log("Map data not loaded properly");
+    console.log("Map data not loaded properly, retrying...");
+    setTimeout(setup, 100); // retry in 100ms
     return;
   }
 
@@ -65,8 +99,10 @@ function setup() {
   // Start game timer
   gameStartTime = millis();
 
+  // Don't start music here - wait for game to start
+
   // Initialize game grid and water level system
-  waterLevel = Math.floor(mapRows / 3); // start with bottom third flooded
+  waterLevel = Math.floor(mapRows / 6); // start with bottom sixth flooded (less water)
 
   for (let col = 0; col < mapCols; col++) {
     columnBlocked[col] = false; // no columns blocked initially
@@ -88,7 +124,27 @@ function setup() {
 }
 
 function draw() {
+  // Handle different game states
+  if (gameState === "mainMenu") {
+    drawMainMenu();
+  } else if (gameState === "story") {
+    drawStoryScreen();
+  } else if (gameState === "credits") {
+    drawCreditsScreen();
+  } else if (gameState === "playing") {
+    drawGame();
+  } else if (gameState === "gameOver") {
+    drawGameOverScreen();
+  } else if (gameState === "win") {
+    drawWinScreen();
+  }
+}
+
+function drawGame() {
   background(220);
+
+  // Update hovered cell based on mouse position
+  updateHoveredCell();
 
   // Check game over conditions
   if (!gameOver) {
@@ -144,9 +200,9 @@ function draw() {
         }
       }
 
-      // Draw selection highlight
-      if (row === selectedRow && col === selectedCol) {
-        stroke(255, 255, 0); // yellow selection border
+      // Draw hover highlight
+      if (row === hoveredRow && col === hoveredCol) {
+        stroke(255, 255, 0); // yellow hover border
         strokeWeight(3);
         noFill();
         rect(dx, dy, drawSize, drawSize);
@@ -156,11 +212,6 @@ function draw() {
 
   // Draw HUD
   drawHUD();
-
-  // Draw game over popup
-  if (gameOver) {
-    drawGameOverPopup();
-  }
 }
 
 function drawHUD() {
@@ -197,45 +248,155 @@ function drawHUD() {
 
   // Instructions
   textAlign(RIGHT);
-  text("Click to select, W=Wood, S=Stone", width - 10, height - 60);
+  text("Hover + W=Wood, S=Stone", width - 10, height - 60);
   text("Water level rises every 5s", width - 10, height - 40);
   text("Keep the city dry!", width - 10, height - 20);
   textAlign(LEFT);
 }
 
-function mousePressed() {
+function updateHoveredCell() {
   let drawSize = tileSize * scaleFactor;
+
+  // Don't hover in HUD area
+  if (mouseY > height - 80) {
+    hoveredRow = -1;
+    hoveredCol = -1;
+    return;
+  }
+
+  // Update hovered cell based on mouse position
   let col = floor(mouseX / drawSize);
   let row = floor(mouseY / drawSize);
 
-  // Don't select in HUD area
-  if (mouseY > height - 80) return;
-
-  // Select cell
   if (col >= 0 && col < mapCols && row >= 0 && row < mapRows) {
-    selectedRow = row;
-    selectedCol = col;
-    console.log("Selected cell:", row, col);
+    // Check if we moved to a new cell
+    let currentCell = row + "," + col;
+    if (currentCell !== lastHoveredCell) {
+      // Play hover sound when moving to a new cell
+      if (hoverSound && hoverSound.isLoaded()) {
+        hoverSound.setVolume(0.2); // Quiet hover sound
+        hoverSound.play();
+      }
+      lastHoveredCell = currentCell;
+    }
+
+    hoveredRow = row;
+    hoveredCol = col;
+  } else {
+    hoveredRow = -1;
+    hoveredCol = -1;
+    lastHoveredCell = "";
+  }
+}
+
+function mousePressed() {
+  if (gameState === "mainMenu") {
+    // Main menu clicks
+    if (mouseY >= height/2 - 40 && mouseY <= height/2) {
+      // Play button
+      gameState = "story";
+    } else if (mouseY >= height/2 && mouseY <= height/2 + 40) {
+      // Credits button
+      gameState = "credits";
+    } else if (mouseY >= height/2 + 40 && mouseY <= height/2 + 80) {
+      // Quit button
+      window.close();
+    }
+  } else if (gameState === "story") {
+    // Let's go button
+    if (mouseX >= width/2 - 50 && mouseX <= width/2 + 50 &&
+        mouseY >= height/2 + 80 && mouseY <= height/2 + 120) {
+      startGame();
+    }
+  } else if (gameState === "credits") {
+    // Click anywhere to return
+    gameState = "mainMenu";
+  } else if (gameState === "gameOver" || gameState === "win") {
+    // Replay button
+    if (mouseX >= width/2 - 50 && mouseX <= width/2 + 50 &&
+        mouseY >= height/2 + 80 && mouseY <= height/2 + 120) {
+      resetGame();
+    }
+  }
+}
+
+function startGame() {
+  gameState = "playing";
+  gameStartTime = millis();
+  gameOver = false;
+
+  // Start background music
+  if (mainThemeMusic && mainThemeMusic.isLoaded()) {
+    mainThemeMusic.setVolume(0.3);
+    mainThemeMusic.loop();
+  }
+}
+
+function resetGame() {
+  gameState = "mainMenu";
+  gameOver = false;
+  gameOverReason = "";
+  hoveredRow = -1;
+  hoveredCol = -1;
+  woodAvailable = 0;
+  stoneAvailable = 0;
+  currentFlag = 0;
+  waterLevel = Math.floor(mapRows / 6);
+
+  // Reset timers
+  waterTimer = 0;
+  woodTimer = 0;
+  stoneTimer = 0;
+
+  // Reset grid
+  for (let row = 0; row < mapRows; row++) {
+    for (let col = 0; col < mapCols; col++) {
+      if (row >= mapRows - waterLevel) {
+        gameGrid[row][col] = 'water';
+      } else {
+        gameGrid[row][col] = 'land';
+      }
+      woodHealthGrid[row][col] = 0;
+    }
+  }
+
+  // Reset column blocking
+  for (let col = 0; col < mapCols; col++) {
+    columnBlocked[col] = false;
   }
 }
 
 function keyPressed() {
-  // Only place if a cell is selected
-  if (selectedRow >= 0 && selectedCol >= 0) {
+  // Only place if hovering over a valid cell AND in playing state
+  if (gameState === "playing" && hoveredRow >= 0 && hoveredCol >= 0) {
     if (key === 'w' || key === 'W') {
       // Place wood
-      if (gameGrid[selectedRow][selectedCol] === 'land' && woodAvailable > 0) {
-        gameGrid[selectedRow][selectedCol] = 'wood';
-        woodHealthGrid[selectedRow][selectedCol] = WOOD_RESISTANCE_TIME;
+      if (gameGrid[hoveredRow][hoveredCol] === 'land' && woodAvailable > 0) {
+        gameGrid[hoveredRow][hoveredCol] = 'wood';
+        woodHealthGrid[hoveredRow][hoveredCol] = WOOD_RESISTANCE_TIME;
         woodAvailable--;
-        console.log("Placed wood at", selectedRow, selectedCol);
+
+        // Play wood placement sound
+        if (placeWoodSound && placeWoodSound.isLoaded()) {
+          placeWoodSound.setVolume(0.4);
+          placeWoodSound.play();
+        }
+
+        console.log("Placed wood at", hoveredRow, hoveredCol);
       }
     } else if (key === 's' || key === 'S') {
       // Place stone
-      if (gameGrid[selectedRow][selectedCol] === 'land' && stoneAvailable > 0) {
-        gameGrid[selectedRow][selectedCol] = 'stone';
+      if (gameGrid[hoveredRow][hoveredCol] === 'land' && stoneAvailable > 0) {
+        gameGrid[hoveredRow][hoveredCol] = 'stone';
         stoneAvailable--;
-        console.log("Placed stone at", selectedRow, selectedCol);
+
+        // Play steel placement sound
+        if (placeSteelSound && placeSteelSound.isLoaded()) {
+          placeSteelSound.setVolume(0.5);
+          placeSteelSound.play();
+        }
+
+        console.log("Placed stone at", hoveredRow, hoveredCol);
       }
     }
   }
@@ -322,46 +483,127 @@ function updateColumnBlocking() {
 }
 
 function checkGameOverConditions() {
-  // Check time limit
+  // Check time limit - WIN condition
   let timeElapsed = millis() - gameStartTime;
-  if (timeElapsed >= 90000) { // 90 seconds
-    gameOver = true;
-    gameOverReason = "Time's up! The city is completely drowned!";
+  if (timeElapsed >= 90000) { // 90 seconds - PLAYER WINS!
+    gameState = "win";
     return;
   }
 
-  // Check if water reached top row
+  // Check if water reached top row - LOSE condition
   for (let col = 0; col < mapCols; col++) {
     if (gameGrid[0][col] === 'water') {
-      gameOver = true;
+      gameState = "gameOver";
       gameOverReason = "Water reached the top! The city is drowned!";
       return;
     }
   }
 }
 
-function drawGameOverPopup() {
-  // Semi-transparent overlay
-  fill(0, 0, 0, 200);
-  rect(0, 0, width, height);
+// Menu and screen drawing functions
+function drawMainMenu() {
+  background(75, 75, 150); // Purple background
 
-  // Game over box
-  fill(200, 50, 50);
-  stroke(255);
-  strokeWeight(3);
-  rect(width/4, height/3, width/2, height/3);
-
-  // Game over text
   fill(255);
   textAlign(CENTER, CENTER);
+  textSize(48);
+  text("THE FLOOR IS WATER", width/2, height/2 - 100);
+
   textSize(24);
-  text("GAME OVER!", width/2, height/2 - 40);
+  text("Play", width/2, height/2 - 20);
+  text("Credits", width/2, height/2 + 20);
+  text("Quit", width/2, height/2 + 60);
+
+  textAlign(LEFT);
+}
+
+function drawStoryScreen() {
+  background(75, 75, 150); // Purple background
+
+  fill(255);
+  textAlign(CENTER, CENTER);
+  textSize(18);
+  text("Mayor! The sea water is rising.", width/2, height/2 - 60);
+  text("Help us by building and placing barriers", width/2, height/2 - 20);
+  text("so that it halts the waves!", width/2, height/2 + 20);
+
+  // Let's go button
+  fill(255, 255, 100);
+  stroke(255);
+  strokeWeight(2);
+  rect(width/2 - 50, height/2 + 80, 100, 40);
+
+  fill(0);
+  textSize(16);
+  text("Let's go", width/2, height/2 + 100);
+
+  textAlign(LEFT);
+}
+
+function drawCreditsScreen() {
+  background(75, 75, 150); // Purple background
+
+  fill(255);
+  textAlign(CENTER, CENTER);
+  textSize(32);
+  text("CREDITS", width/2, height/2 - 100);
+
+  textSize(18);
+  text("Yaakulya - Mechanics and designed gameplay", width/2, height/2 - 20);
+  text("Ahmad - Story, Sound, Visualisations, Asset management", width/2, height/2 + 20);
 
   textSize(16);
-  text(gameOverReason, width/2, height/2);
+  text("Click anywhere to return", width/2, height/2 + 80);
 
-  textSize(14);
-  text("Refresh to play again", width/2, height/2 + 40);
+  textAlign(LEFT);
+}
 
-  textAlign(LEFT); // reset text alignment
+function drawGameOverScreen() {
+  background(120, 50, 50); // Red background
+
+  fill(255);
+  textAlign(CENTER, CENTER);
+  textSize(48);
+  text("YOU FAIL", width/2, height/2 - 60);
+
+  textSize(18);
+  text("The city sunk along with its people.", width/2, height/2 - 10);
+  text("Perhaps your decisions could be better in the next life.", width/2, height/2 + 20);
+
+  // Replay button
+  fill(255);
+  stroke(0);
+  strokeWeight(2);
+  rect(width/2 - 50, height/2 + 80, 100, 40);
+
+  fill(0);
+  textSize(16);
+  text("REPLAY", width/2, height/2 + 100);
+
+  textAlign(LEFT);
+}
+
+function drawWinScreen() {
+  background(50, 120, 100); // Green background
+
+  fill(255);
+  textAlign(CENTER, CENTER);
+  textSize(48);
+  text("SUCCESS!", width/2, height/2 - 60);
+
+  textSize(18);
+  text("Your quick-witted actions saved the town & people.", width/2, height/2 - 10);
+  text("The tide is over for now, but who knows what future holds?", width/2, height/2 + 20);
+
+  // Replay button
+  fill(255);
+  stroke(0);
+  strokeWeight(2);
+  rect(width/2 - 50, height/2 + 80, 100, 40);
+
+  fill(0);
+  textSize(16);
+  text("REPLAY", width/2, height/2 + 100);
+
+  textAlign(LEFT);
 }
