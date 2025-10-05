@@ -72,7 +72,7 @@ function preload() {
     () => console.log("Failed to load wood placement sound")
   );
 
-  placeSteelSound = loadSound("impactPlate_medium_000.ogg",
+  placeSteelSound = loadSound("placeSteelSound.ogg",
     () => console.log("Steel placement sound loaded"),
     () => console.log("Failed to load steel placement sound")
   );
