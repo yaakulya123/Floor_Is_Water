@@ -538,7 +538,7 @@ function drawStoryScreen() {
 
   fill(255);
   textAlign(CENTER, CENTER);
-  textSize(18);
+  textSize(24);
   textFont(mainFont); // NEW
   text("Mayor! The sea water is rising.", width/2, height/2 - 60);
   text("Help us by building and placing barriers", width/2, height/2 - 20);
@@ -546,12 +546,12 @@ function drawStoryScreen() {
 
   // Let's go button
   fill(255, 255, 100);
-  stroke(255);
-  strokeWeight(2);
+  // stroke(255);
+  // strokeWeight(2);
   rect(width/2 - 50, height/2 + 80, 100, 40);
 
   fill(0);
-  textSize(16);
+  textSize(24);
   textFont(mainFont); // NEW
   text("Let's go!", width/2, height/2 + 100);
 
@@ -593,13 +593,13 @@ function drawGameOverScreen() {
 
   // Replay button
   fill(255);
-  stroke(0);
-  strokeWeight(2);
+  // stroke(0);
+  // strokeWeight(2);
   rect(width/2 - 50, height/2 + 80, 100, 40);
 
   fill(0);
   textSize(16);
-  textFont(titleFont); // NEW
+  textFont(mainFont); // NEW
   text("REPLAY", width/2, height/2 + 100);
 
   textAlign(LEFT);
@@ -621,13 +621,13 @@ function drawWinScreen() {
 
   // Replay button
   fill(255);
-  stroke(0);
-  strokeWeight(2);
+  // stroke(0);
+  // strokeWeight(2);
   rect(width/2 - 50, height/2 + 80, 100, 40);
 
   fill(0);
-  textSize(16);
-  textFont(titleFont); // NEW
+  textSize(24);
+  textFont(mainFont); // NEW
   text("REPLAY", width/2, height/2 + 100);
 
   textAlign(LEFT);
