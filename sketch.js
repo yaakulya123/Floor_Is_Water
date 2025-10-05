@@ -39,6 +39,10 @@ let gameWon = false;
 const WATER_TILE = 340;
 const WOOD_RESISTANCE_TIME = 5000; // 5 seconds for wood degradation
 
+// NEW: User Interface
+let mainFont;
+let titleFont; 
+
 function preload() {
   // Load your tileset image (spritesheet)
   tileset = loadImage("tilemap_packed.png",
@@ -75,6 +79,15 @@ function preload() {
   placeSteelSound = loadSound("placeSteelSound.ogg",
     () => console.log("Steel placement sound loaded"),
     () => console.log("Failed to load steel placement sound")
+  );
+  // NEW
+  mainFont = loadFont("mainFont.ttf",
+    () => console.log("Main Font Loaded"),
+    () => console.log("Failed to load main font")
+  );
+  titleFont = loadFont("titleFont.ttf",
+    () => console.log("Title Font Loaded"),
+    () => console.log("Failed to load title font")
   );
 
   // Load the CSV file (each row has numbers separated by commas)
@@ -232,6 +245,7 @@ function drawHUD() {
   // Resource text
   fill(255);
   textSize(16);
+  textFont(mainFont); // NEW
   text("Wood: " + woodAvailable, 10, height - 60);
   text("Stone: " + stoneAvailable, 10, height - 40);
   text("Dry tiles left: " + dryTiles, 10, height - 20);
@@ -507,9 +521,11 @@ function drawMainMenu() {
   fill(255);
   textAlign(CENTER, CENTER);
   textSize(48);
+  textFont(titleFont); // NEW
   text("THE FLOOR IS WATER", width/2, height/2 - 100);
 
   textSize(24);
+  textFont(mainFont); // NEW
   text("Play", width/2, height/2 - 20);
   text("Credits", width/2, height/2 + 20);
   text("Quit", width/2, height/2 + 60);
@@ -523,6 +539,7 @@ function drawStoryScreen() {
   fill(255);
   textAlign(CENTER, CENTER);
   textSize(18);
+  textFont(mainFont); // NEW
   text("Mayor! The sea water is rising.", width/2, height/2 - 60);
   text("Help us by building and placing barriers", width/2, height/2 - 20);
   text("so that it halts the waves!", width/2, height/2 + 20);
@@ -535,7 +552,8 @@ function drawStoryScreen() {
 
   fill(0);
   textSize(16);
-  text("Let's go", width/2, height/2 + 100);
+  textFont(mainFont); // NEW
+  text("Let's go!", width/2, height/2 + 100);
 
   textAlign(LEFT);
 }
@@ -546,6 +564,7 @@ function drawCreditsScreen() {
   fill(255);
   textAlign(CENTER, CENTER);
   textSize(32);
+  textFont(mainFont); // NEW
   text("CREDITS", width/2, height/2 - 100);
 
   textSize(18);
@@ -564,9 +583,11 @@ function drawGameOverScreen() {
   fill(255);
   textAlign(CENTER, CENTER);
   textSize(48);
+  textFont(titleFont); // NEW
   text("YOU FAIL", width/2, height/2 - 60);
 
   textSize(18);
+  textFont(mainFont); // NEW
   text("The city sunk along with its people.", width/2, height/2 - 10);
   text("Perhaps your decisions could be better in the next life.", width/2, height/2 + 20);
 
@@ -578,6 +599,7 @@ function drawGameOverScreen() {
 
   fill(0);
   textSize(16);
+  textFont(titleFont); // NEW
   text("REPLAY", width/2, height/2 + 100);
 
   textAlign(LEFT);
@@ -589,9 +611,11 @@ function drawWinScreen() {
   fill(255);
   textAlign(CENTER, CENTER);
   textSize(48);
+  textFont(titleFont); // NEW
   text("SUCCESS!", width/2, height/2 - 60);
 
   textSize(18);
+  textFont(mainFont); // NEW
   text("Your quick-witted actions saved the town & people.", width/2, height/2 - 10);
   text("The tide is over for now, but who knows what future holds?", width/2, height/2 + 20);
 
@@ -603,6 +627,7 @@ function drawWinScreen() {
 
   fill(0);
   textSize(16);
+  textFont(titleFont); // NEW
   text("REPLAY", width/2, height/2 + 100);
 
   textAlign(LEFT);
