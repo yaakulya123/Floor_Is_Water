@@ -38,7 +38,7 @@ let gameWon = false;
 // Water tile index for overlay
 const WATER_TILE = 340;
 const WOOD_RESISTANCE_TIME = 5000; // 5 seconds for wood degradation
-const WATER_TICK = 1000;
+const WATER_TICK = 2500;
 const WOOD_TICK = 4000;
 const STONE_TICK = 4500;
 
