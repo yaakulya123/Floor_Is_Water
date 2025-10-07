@@ -3,230 +3,534 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Floor Is Water - Tiled Edition</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/addons/p5.sound.min.js"></script>
+    <title>Floor Is Water - City Defense Game</title>
     <style>
-        body {
+        @font-face {
+            font-family: 'TitleFont';
+            src: url('titleFont.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'MainFont';
+            src: url('mainFont.ttf') format('truetype');
+        }
+
+        * {
             margin: 0;
-            padding: 20px;
-            background: #333;
-            color: white;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .container {
-            display: flex;
-            gap: 60px;
-            align-items: flex-start;
-            max-width: 1700px;
-            width: 100%;
-            justify-content: center;
-            padding: 0 20px;
-        }
-        .left-section {
-            flex: 0 0 320px;
-            max-width: 320px;
-            display: flex;
-            flex-direction: column;
-            min-height: 840px;
-            margin-right: 50px;
-        }
-        .game-section {
-            flex: 0 0 840px;
-        }
-        .right-section {
-            flex: 0 0 320px;
-            max-width: 320px;
-            display: flex;
-            flex-direction: column;
-            min-height: 840px;
-            margin-left: -20px;
-        }
-        .left-section h1 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            font-size: 2em;
-            line-height: 1.2;
-        }
-        .subtitle {
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-size: 1.2em;
-            color: #aaa;
-        }
-        .portrait-container {
-            width: 280px;
-            height: 280px;
-            margin: 30px auto;
-            position: relative;
-        }
-        .portrait {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            position: absolute;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        }
-        .portrait.active {
-            opacity: 1;
-        }
-        .dialogue-container {
-            min-height: 100px;
-            margin: 20px 0;
-            position: relative;
-            text-align: center;
-        }
-        .dialogue {
-            font-style: italic;
-            color: #ffcc00;
-            font-size: 1.15em;
-            position: absolute;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-            width: 100%;
-        }
-        .dialogue.active {
-            opacity: 1;
-        }
-        canvas {
-            border: 2px solid #666;
-        }
-        .instructions {
-            text-align: left;
-            font-size: 0.95em;
+
+        body {
+            font-family: 'MainFont', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e0e0e0;
+            overflow-x: hidden;
             line-height: 1.6;
         }
-        .instructions h3 {
-            margin-top: 20px;
-            margin-bottom: 10px;
-            color: #ffcc00;
+
+        /* Animated water background */
+        .water-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, transparent 0%, rgba(30, 144, 255, 0.1) 100%);
+            pointer-events: none;
+            z-index: 0;
         }
-        .instructions ul {
-            list-style: none;
-            padding-left: 0;
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
         }
-        .instructions li {
-            margin-bottom: 8px;
+
+        /* Header/Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 60px 20px;
         }
-        @media (max-width: 1400px) {
-            .container {
-                flex-direction: column;
+
+        .hero h1 {
+            font-family: 'TitleFont', sans-serif;
+            font-size: 5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #1e90ff, #00bfff, #4169e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px rgba(30, 144, 255, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                filter: drop-shadow(0 0 20px rgba(30, 144, 255, 0.5));
+            }
+            to {
+                filter: drop-shadow(0 0 40px rgba(30, 144, 255, 0.8));
+            }
+        }
+
+        .hero .subtitle {
+            font-size: 1.8rem;
+            color: #00bfff;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        .hero .tagline {
+            font-size: 1.3rem;
+            color: #b0b0b0;
+            margin-bottom: 50px;
+            max-width: 700px;
+            line-height: 1.8;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 20px 60px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(135deg, #1e90ff, #4169e1);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(30, 144, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(30, 144, 255, 0.6);
+        }
+
+        .cta-button:active {
+            transform: translateY(-1px);
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .cta-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* Character Showcase */
+        .characters {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 60px;
+            flex-wrap: wrap;
+        }
+
+        .character-card {
+            width: 150px;
+            height: 150px;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 3px solid rgba(30, 144, 255, 0.5);
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .character-card:hover {
+            transform: scale(1.1) rotate(5deg);
+            border-color: #1e90ff;
+            box-shadow: 0 10px 30px rgba(30, 144, 255, 0.5);
+        }
+
+        .character-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Section Styling */
+        .section {
+            padding: 100px 20px;
+            position: relative;
+        }
+
+        .section-title {
+            font-family: 'TitleFont', sans-serif;
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 60px;
+            color: #00bfff;
+        }
+
+        /* Story Section */
+        .story-content {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.2rem;
+            line-height: 2;
+            text-align: center;
+            color: #c0c0c0;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(30, 144, 255, 0.2);
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(30, 144, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: #1e90ff;
+            box-shadow: 0 15px 40px rgba(30, 144, 255, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #00bfff;
+        }
+
+        .feature-card p {
+            color: #b0b0b0;
+            line-height: 1.8;
+        }
+
+        /* How to Play Section */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 60px;
+        }
+
+        .control-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(30, 144, 255, 0.2);
+        }
+
+        .control-key {
+            display: inline-block;
+            background: linear-gradient(135deg, #1e90ff, #4169e1);
+            color: #fff;
+            font-size: 2rem;
+            font-weight: bold;
+            padding: 15px 30px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(30, 144, 255, 0.4);
+        }
+
+        .control-item p {
+            color: #c0c0c0;
+            font-size: 1.1rem;
+        }
+
+        /* Victory Conditions */
+        .victory-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .victory-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 2px solid;
+        }
+
+        .victory-card.win {
+            border-color: #4ade80;
+        }
+
+        .victory-card.lose {
+            border-color: #f87171;
+        }
+
+        .victory-card h3 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .victory-card.win h3 {
+            color: #4ade80;
+        }
+
+        .victory-card.lose h3 {
+            color: #f87171;
+        }
+
+        .victory-card p {
+            color: #c0c0c0;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            margin-top: 100px;
+            border-top: 1px solid rgba(30, 144, 255, 0.2);
+        }
+
+        .footer p {
+            color: #808080;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1.3rem;
+            }
+
+            .hero .tagline {
+                font-size: 1.1rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .characters {
                 gap: 20px;
-                align-items: center;
             }
-            .left-section, .right-section {
-                max-width: 600px;
-                text-align: center;
+
+            .character-card {
+                width: 120px;
+                height: 120px;
             }
-            .instructions {
-                text-align: center;
-            }
+        }
+
+        /* Scroll Animation */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Left Section: Title + Instructions -->
-        <div class="left-section">
-            <h1>Floor Is Water</h1>
+    <div class="water-overlay"></div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>FLOOR IS WATER</h1>
             <p class="subtitle">City Defense</p>
+            <p class="tagline">
+                🌊 The tides are rising. The city is sinking. As Mayor, you have 90 seconds to save your people from the flood. Build barriers, make strategic decisions, and fight against time itself. Will you save the island, or watch it disappear beneath the waves?
+            </p>
 
-            <div class="instructions">
-                <h3>🌊 Mission</h3>
-                <p>Save the city from rising floodwaters! You have 90 seconds to protect as much land as possible.</p>
+            <a href="game.html" class="cta-button">▶ PLAY NOW</a>
 
-                <h3>⌨️ Controls</h3>
-                <ul>
-                    <li>• Hover over any tile</li>
-                    <li>• Press <strong>W</strong> to place <span style="color: brown;">wood</span> barriers</li>
-                    <li>• Press <strong>S</strong> to place <span style="color: gray;">stone</span> barriers</li>
-                </ul>
-
-                <h3>🎯 Strategy</h3>
-                <ul>
-                    <li>• <strong>Wood</strong>: Decays in ~4 seconds when water touches it</li>
-                    <li>• <strong>Stone</strong>: Permanent barrier, blocks water indefinitely</li>
-                    <li>• Water rises every few seconds</li>
-                    <li>• Build barriers to protect critical areas</li>
-                </ul>
-
-                <h3>🏆 Victory</h3>
-                <ul>
-                    <li>• Save >70% of land → Island Saved</li>
-                    <li>• Save <70% of land → Island Submerged</li>
-                </ul>
+            <!-- Character Showcase -->
+            <div class="characters">
+                <div class="character-card">
+                    <img src="baldMan.png" alt="Bald Man">
+                </div>
+                <div class="character-card">
+                    <img src="blondeWoman.png" alt="Blonde Woman">
+                </div>
+                <div class="character-card">
+                    <img src="glassesMan.png" alt="Glasses Man">
+                </div>
+                <div class="character-card">
+                    <img src="ponytailWoman.png" alt="Ponytail Woman">
+                </div>
             </div>
         </div>
+    </section>
 
-        <!-- Middle Section: Game Board -->
-        <div class="game-section">
-            <div id="canvas-container"></div>
-        </div>
-
-        <!-- Right Section: Character Portraits + Dialogues -->
-        <div class="right-section">
-            <div class="portrait-container">
-                <img src="baldMan.png" class="portrait active" id="portrait-0" alt="Character">
-                <img src="blondeWoman.png" class="portrait" id="portrait-1" alt="Character">
-                <img src="glassesMan.png" class="portrait" id="portrait-2" alt="Character">
-                <img src="ponytailWoman.png" class="portrait" id="portrait-3" alt="Character">
-            </div>
-
-            <div class="dialogue-container">
-                <p class="dialogue active" id="dialogue-0">"Mayor, we are losing more land!"</p>
-                <p class="dialogue" id="dialogue-1">"Our city is sinking! Build more barriers!"</p>
-                <p class="dialogue" id="dialogue-2">"The water is rising, we need to evacuate people!"</p>
-                <p class="dialogue" id="dialogue-3">"Run away or else the water consumes you!"</p>
-                <p class="dialogue" id="dialogue-4">"Mayor, the tides are breaking through the outer walls!"</p>
-                <p class="dialogue" id="dialogue-5">"If we don't act fast, the lower district will be gone!"</p>
-                <p class="dialogue" id="dialogue-6">"The sea won't stop, Mayor. It's swallowing everything!"</p>
-                <p class="dialogue" id="dialogue-7">"Our sensors show the waterline rising faster than expected!"</p>
-                <p class="dialogue" id="dialogue-8">"People are trapped near the docks! We must send rescue teams!"</p>
-                <p class="dialogue" id="dialogue-9">"Mayor, the barriers can't hold much longer!"</p>
-                <p class="dialogue" id="dialogue-10">"We've lost contact with the southern wards, they're underwater!"</p>
-                <p class="dialogue" id="dialogue-11">"The rain hasn't stopped for days… this city's drowning in its own tears."</p>
-                <p class="dialogue" id="dialogue-12">"Mayor, what are your orders? The citizens are losing hope."</p>
-                <p class="dialogue" id="dialogue-13">"Another flood warning, sir! This one's worse than before!"</p>
-                <p class="dialogue" id="dialogue-14">"We can't rebuild if the sea keeps taking the ground beneath us!"</p>
-                <p class="dialogue" id="dialogue-15">"Mayor, the pumps are failing! We're running out of power!"</p>
-                <p class="dialogue" id="dialogue-16">"The storm surge is coming, it's now or never!"</p>
-                <p class="dialogue" id="dialogue-17">"Even the highest towers are starting to flood…"</p>
-                <p class="dialogue" id="dialogue-18">"Mayor, if we hesitate any longer, there won't *be* a city to save!"</p>
+    <!-- Story Section -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title fade-in">The Story</h2>
+            <div class="story-content fade-in">
+                <p>
+                    A catastrophic storm surge is threatening your coastal city. As the newly appointed Mayor, you must act fast. Your advisors are panicking, your citizens are counting on you, and the water level won't stop rising.
+                </p>
+                <p style="margin-top: 20px;">
+                    You have limited resources: wooden barriers that decay quickly and precious stone that holds forever. Every decision matters. Every second counts. The fate of thousands rests on your shoulders.
+                </p>
+                <p style="margin-top: 20px; color: #00bfff; font-weight: bold;">
+                    Can you outsmart the flood and save your city before time runs out?
+                </p>
             </div>
         </div>
-    </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title fade-in">Game Features</h2>
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">⏱️</div>
+                    <h3>Time-Based Challenge</h3>
+                    <p>90 seconds of intense decision-making. Every moment counts as the water rises and your city's fate hangs in the balance.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🏗️</div>
+                    <h3>Strategic Building</h3>
+                    <p>Choose between temporary wood barriers or permanent stone defenses. Limited resources force you to think strategically.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🌊</div>
+                    <h3>Dynamic Water System</h3>
+                    <p>Watch as water rises in real-time, breaking through weak barriers and testing your defensive strategies.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">👥</div>
+                    <h3>Character Dialogues</h3>
+                    <h3>Immersive Storytelling</h3>
+                    <p>Your advisors provide real-time updates and urgent warnings as the situation develops, creating tension and urgency.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">📊</div>
+                    <h3>Real-Time Statistics</h3>
+                    <p>Track your progress with live percentage indicators showing how much land you've saved. Stay above 70% to win!</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Skill-Based Gameplay</h3>
+                    <p>Easy to learn, challenging to master. Quick reflexes and smart planning are both essential for victory.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How to Play Section -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title fade-in">How to Play</h2>
+            <div class="controls-grid">
+                <div class="control-item fade-in">
+                    <div class="control-key">W</div>
+                    <p><strong>Place Wood</strong><br>Quick temporary barrier that decays in ~4 seconds when water touches it</p>
+                </div>
+                <div class="control-item fade-in">
+                    <div class="control-key">S</div>
+                    <p><strong>Place Stone</strong><br>Permanent barrier that blocks water indefinitely</p>
+                </div>
+                <div class="control-item fade-in">
+                    <div class="control-key">🖱️</div>
+                    <p><strong>Hover & Click</strong><br>Move your mouse over any tile and press W or S to build</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Victory Conditions Section -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title fade-in">Victory Conditions</h2>
+            <div class="victory-cards">
+                <div class="victory-card win fade-in">
+                    <h3>🏆 ISLAND SAVED</h3>
+                    <p>Save more than <strong>70%</strong> of the land</p>
+                    <p style="margin-top: 15px;">Your strategic planning and quick reflexes paid off. The citizens celebrate as the majority of the city remains above water. You are a hero!</p>
+                </div>
+                <div class="victory-card lose fade-in">
+                    <h3>💀 ISLAND SUBMERGED</h3>
+                    <p>Save less than <strong>70%</strong> of the land</p>
+                    <p style="margin-top: 15px;">Despite your efforts, the flood consumed too much territory. The city sinks into the depths, and the people must evacuate. Perhaps next time...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="section" style="padding: 150px 20px;">
+        <div class="container" style="text-align: center;">
+            <h2 class="section-title fade-in">Ready to Save Your City?</h2>
+            <p class="tagline fade-in" style="margin: 30px auto 50px;">The water is rising. Time is running out. Your people need you.</p>
+            <a href="game.html" class="cta-button fade-in">▶ START PLAYING NOW</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 Floor Is Water - City Defense. All rights reserved.</p>
+    </footer>
 
     <script>
-        // Portrait and dialogue rotation script
-        let currentPortrait = 0;
-        const portraits = document.querySelectorAll('.portrait');
-        const dialogues = document.querySelectorAll('.dialogue');
-        const totalPortraits = portraits.length;
-        const totalDialogues = dialogues.length;
+        // Scroll animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
 
-        function rotatePortraitAndDialogue() {
-            // Hide current portrait and dialogue
-            portraits[currentPortrait].classList.remove('active');
-            dialogues[currentPortrait].classList.remove('active');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
 
-            // Move to next portrait
-            currentPortrait = (currentPortrait + 1) % totalPortraits;
-
-            // Show new portrait and corresponding dialogue
-            portraits[currentPortrait].classList.add('active');
-            dialogues[currentPortrait].classList.add('active');
-        }
-
-        setInterval(rotatePortraitAndDialogue, 7000);
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
     </script>
-
-    <script src="sketch.js"></script>
 </body>
 </html>
