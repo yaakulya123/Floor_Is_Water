@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Floor Is Water - City Defense Game</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for better readability -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
     <style>
         @font-face {
             font-family: 'TitleFont';
             src: url('titleFont.ttf') format('truetype');
-        }
-
-        @font-face {
-            font-family: 'MainFont';
-            src: url('mainFont.ttf') format('truetype');
         }
 
         * {
@@ -22,11 +23,12 @@
         }
 
         body {
-            font-family: 'MainFont', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            color: #e0e0e0;
+            color: #e8e8e8;
             overflow-x: hidden;
-            line-height: 1.6;
+            line-height: 1.7;
+            font-size: 16px;
         }
 
         /* Animated water background */
@@ -190,10 +192,10 @@
         .story-content {
             max-width: 800px;
             margin: 0 auto;
-            font-size: 1.2rem;
-            line-height: 2;
+            font-size: 1.15rem;
+            line-height: 1.9;
             text-align: center;
-            color: #c0c0c0;
+            color: #c8c8c8;
             background: rgba(255, 255, 255, 0.03);
             padding: 40px;
             border-radius: 20px;
@@ -226,17 +228,20 @@
         .feature-icon {
             font-size: 3rem;
             margin-bottom: 20px;
+            color: #00bfff;
         }
 
         .feature-card h3 {
             font-size: 1.5rem;
             margin-bottom: 15px;
             color: #00bfff;
+            font-weight: 600;
         }
 
         .feature-card p {
-            color: #b0b0b0;
-            line-height: 1.8;
+            color: #c5c5c5;
+            line-height: 1.9;
+            font-size: 1.05rem;
         }
 
         /* How to Play Section */
@@ -268,8 +273,9 @@
         }
 
         .control-item p {
-            color: #c0c0c0;
-            font-size: 1.1rem;
+            color: #c5c5c5;
+            font-size: 1.05rem;
+            line-height: 1.8;
         }
 
         /* Victory Conditions */
@@ -310,9 +316,9 @@
         }
 
         .victory-card p {
-            color: #c0c0c0;
-            font-size: 1.1rem;
-            line-height: 1.8;
+            color: #c5c5c5;
+            font-size: 1.05rem;
+            line-height: 1.9;
         }
 
         /* Footer */
@@ -378,10 +384,10 @@
             <h1>FLOOR IS WATER</h1>
             <p class="subtitle">City Defense</p>
             <p class="tagline">
-                🌊 The tides are rising. The city is sinking. As Mayor, you have 90 seconds to save your people from the flood. Build barriers, make strategic decisions, and fight against time itself. Will you save the island, or watch it disappear beneath the waves?
+                The tides are rising. The city is sinking. As Mayor, you have 90 seconds to save your people from the flood. Build barriers, make strategic decisions, and fight against time itself. Will you save the island, or watch it disappear beneath the waves?
             </p>
 
-            <a href="game.html" class="cta-button">▶ PLAY NOW</a>
+            <a href="game.html" class="cta-button"><i class="fas fa-play"></i> PLAY NOW</a>
 
             <!-- Character Showcase -->
             <div class="characters">
@@ -425,33 +431,32 @@
             <h2 class="section-title fade-in">Game Features</h2>
             <div class="features-grid">
                 <div class="feature-card fade-in">
-                    <div class="feature-icon">⏱️</div>
+                    <div class="feature-icon"><i class="fas fa-clock"></i></div>
                     <h3>Time-Based Challenge</h3>
                     <p>90 seconds of intense decision-making. Every moment counts as the water rises and your city's fate hangs in the balance.</p>
                 </div>
                 <div class="feature-card fade-in">
-                    <div class="feature-icon">🏗️</div>
+                    <div class="feature-icon"><i class="fas fa-hammer"></i></div>
                     <h3>Strategic Building</h3>
                     <p>Choose between temporary wood barriers or permanent stone defenses. Limited resources force you to think strategically.</p>
                 </div>
                 <div class="feature-card fade-in">
-                    <div class="feature-icon">🌊</div>
+                    <div class="feature-icon"><i class="fas fa-water"></i></div>
                     <h3>Dynamic Water System</h3>
                     <p>Watch as water rises in real-time, breaking through weak barriers and testing your defensive strategies.</p>
                 </div>
                 <div class="feature-card fade-in">
-                    <div class="feature-icon">👥</div>
-                    <h3>Character Dialogues</h3>
+                    <div class="feature-icon"><i class="fas fa-users"></i></div>
                     <h3>Immersive Storytelling</h3>
                     <p>Your advisors provide real-time updates and urgent warnings as the situation develops, creating tension and urgency.</p>
                 </div>
                 <div class="feature-card fade-in">
-                    <div class="feature-icon">📊</div>
+                    <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
                     <h3>Real-Time Statistics</h3>
                     <p>Track your progress with live percentage indicators showing how much land you've saved. Stay above 70% to win!</p>
                 </div>
                 <div class="feature-card fade-in">
-                    <div class="feature-icon">🎯</div>
+                    <div class="feature-icon"><i class="fas fa-crosshairs"></i></div>
                     <h3>Skill-Based Gameplay</h3>
                     <p>Easy to learn, challenging to master. Quick reflexes and smart planning are both essential for victory.</p>
                 </div>
@@ -473,7 +478,7 @@
                     <p><strong>Place Stone</strong><br>Permanent barrier that blocks water indefinitely</p>
                 </div>
                 <div class="control-item fade-in">
-                    <div class="control-key">🖱️</div>
+                    <div class="control-key"><i class="fas fa-mouse-pointer"></i></div>
                     <p><strong>Hover & Click</strong><br>Move your mouse over any tile and press W or S to build</p>
                 </div>
             </div>
@@ -486,12 +491,12 @@
             <h2 class="section-title fade-in">Victory Conditions</h2>
             <div class="victory-cards">
                 <div class="victory-card win fade-in">
-                    <h3>🏆 ISLAND SAVED</h3>
+                    <h3><i class="fas fa-trophy"></i> ISLAND SAVED</h3>
                     <p>Save more than <strong>70%</strong> of the land</p>
                     <p style="margin-top: 15px;">Your strategic planning and quick reflexes paid off. The citizens celebrate as the majority of the city remains above water. You are a hero!</p>
                 </div>
                 <div class="victory-card lose fade-in">
-                    <h3>💀 ISLAND SUBMERGED</h3>
+                    <h3><i class="fas fa-skull-crossbones"></i> ISLAND SUBMERGED</h3>
                     <p>Save less than <strong>70%</strong> of the land</p>
                     <p style="margin-top: 15px;">Despite your efforts, the flood consumed too much territory. The city sinks into the depths, and the people must evacuate. Perhaps next time...</p>
                 </div>
@@ -504,7 +509,7 @@
         <div class="container" style="text-align: center;">
             <h2 class="section-title fade-in">Ready to Save Your City?</h2>
             <p class="tagline fade-in" style="margin: 30px auto 50px;">The water is rising. Time is running out. Your people need you.</p>
-            <a href="game.html" class="cta-button fade-in">▶ START PLAYING NOW</a>
+            <a href="game.html" class="cta-button fade-in"><i class="fas fa-play"></i> START PLAYING NOW</a>
         </div>
     </section>
 
