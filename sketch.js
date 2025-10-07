@@ -1,5 +1,5 @@
 let tileset;      // image containing all 360 tiles
-let woodImg, stoneImg; // PNG images for barriers
+let woodImg, stoneImg, woodDecayImg; // PNG images for barriers
 
 // Sound variables
 let mainThemeMusic;
@@ -38,6 +38,7 @@ let gameWon = false;
 // Water tile index for overlay
 const WATER_TILE = 340;
 const WOOD_RESISTANCE_TIME = 5000; // 5 seconds for wood degradation
+const WOOD_DECAY_TIME = 4000; // 4 seconds for decayed wood to remain visible
 const WATER_TICK = 2500;
 const WOOD_TICK = 4000;
 const STONE_TICK = 4500;
@@ -61,6 +62,10 @@ function preload() {
   stoneImg = loadImage("tileSteel.png",
     () => console.log("Steel image loaded"),
     () => console.log("Failed to load steel image")
+  );
+  woodDecayImg = loadImage("tileWoodDecay.png",
+    () => console.log("Wood decay image loaded"),
+    () => console.log("Failed to load wood decay image")
   );
 
   // Load sound files (local)
@@ -98,7 +103,8 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(840, 840); // adjust depending on map size
+  let canvas = createCanvas(840, 840); // adjust depending on map size
+  canvas.parent('canvas-container'); // Place canvas in the container
 
   // Check if data loaded properly - wait for it to load
   if (!mapData || mapData.getRowCount() === 0) {
@@ -183,6 +189,11 @@ function drawGame() {
     stoneTimer = millis();
   }
 
+  // Update wood decay every frame
+  if (!gameOver) {
+    updateWoodDecay();
+  }
+
   let drawSize = tileSize * scaleFactor;
 
   for (let row = 0; row < mapRows; row++) {
@@ -203,13 +214,14 @@ function drawGame() {
           noStroke();
           rect(dx, dy, drawSize, drawSize);
         } else if (gameGrid[row][col] === 'wood') {
-          // Draw wood PNG with health-based tinting
-          let healthPercent = woodHealthGrid[row][col] / WOOD_RESISTANCE_TIME;
-          if (healthPercent <= 0) healthPercent = 0.3; // minimum visibility for degraded wood
-
-          tint(255, 255 * healthPercent); // fade as it degrades
-          image(woodImg, dx, dy, drawSize, drawSize);
-          noTint(); // reset tint
+          // Check if wood is decaying (health <= 0 but still visible)
+          if (woodHealthGrid[row][col] <= 0) {
+            // Show decay image
+            image(woodDecayImg, dx, dy, drawSize, drawSize);
+          } else {
+            // Show normal wood image
+            image(woodImg, dx, dy, drawSize, drawSize);
+          }
         } else if (gameGrid[row][col] === 'stone') {
           // Draw stone PNG
           image(stoneImg, dx, dy, drawSize, drawSize);
@@ -231,15 +243,19 @@ function drawGame() {
 }
 
 function drawHUD() {
-  // Calculate remaining dry land
-  let dryTiles = 0;
+  // Calculate remaining dry land and percentage
+  let totalTiles = mapRows * mapCols;
+  let waterTiles = 0;
   for (let row = 0; row < mapRows; row++) {
     for (let col = 0; col < mapCols; col++) {
-      if (gameGrid[row][col] !== 'water') {
-        dryTiles++;
+      if (gameGrid[row][col] === 'water') {
+        waterTiles++;
       }
     }
   }
+
+  let dryTiles = totalTiles - waterTiles;
+  let landPercentage = ((dryTiles / totalTiles) * 100).toFixed(1);
 
   // HUD background
   fill(0, 0, 0, 150);
@@ -251,13 +267,26 @@ function drawHUD() {
   textFont(mainFont); // NEW
   text("Wood: " + woodAvailable, 10, height - 60);
   text("Stone: " + stoneAvailable, 10, height - 40);
-  text("Dry tiles left: " + dryTiles, 10, height - 20);
+  text("Dry tiles: " + dryTiles + " (" + landPercentage + "%)", 10, height - 20);
 
   // Display timer
   let timeElapsed = millis() - gameStartTime;
   let timeLeft = Math.max(0, 90 - Math.floor(timeElapsed / 1000));
   fill(timeLeft <= 10 ? color(255, 100, 100) : color(255));
   text("Time left: " + timeLeft + "s", 150, height - 60);
+
+  // Display land saved percentage with color coding
+  let percentColor;
+  if (landPercentage > 70) {
+    percentColor = color(100, 255, 100); // Green - winning
+  } else if (landPercentage > 50) {
+    percentColor = color(255, 255, 100); // Yellow - close
+  } else {
+    percentColor = color(255, 100, 100); // Red - losing
+  }
+  fill(percentColor);
+  textSize(18);
+  text("Land Saved: " + landPercentage + "%", 150, height - 35);
 
   // Display current flag
   fill(currentFlag === 1 ? color(255, 100, 100) : color(100, 255, 100));
@@ -344,7 +373,7 @@ function startGame() {
 
   // Start background music
   if (mainThemeMusic && mainThemeMusic.isLoaded()) {
-    mainThemeMusic.setVolume(0.3);
+    mainThemeMusic.setVolume(0.15);
     mainThemeMusic.loop();
   }
 }
@@ -395,7 +424,7 @@ function keyPressed() {
 
         // Play wood placement sound
         if (placeWoodSound && placeWoodSound.isLoaded()) {
-          placeWoodSound.setVolume(0.4);
+          placeWoodSound.setVolume(0.7);
           placeWoodSound.play();
         }
 
@@ -409,7 +438,7 @@ function keyPressed() {
 
         // Play steel placement sound
         if (placeSteelSound && placeSteelSound.isLoaded()) {
-          placeSteelSound.setVolume(0.5);
+          placeSteelSound.setVolume(0.8);
           placeSteelSound.play();
         }
 
@@ -435,21 +464,41 @@ function checkWaterLevelRising() {
 }
 
 function degradeWoodAtWaterLevel() {
-  // Degrade wood that's at the water level
+  // Mark wood for decay when water touches it
   let waterRow = mapRows - waterLevel;
 
   for (let col = 0; col < mapCols; col++) {
-    if (!columnBlocked[col] && gameGrid[waterRow][col] === 'wood') {
-      woodHealthGrid[waterRow][col] -= 5000; // degrade by 5 seconds
+    // Check if there's wood at the water level (regardless of column blocking)
+    if (gameGrid[waterRow][col] === 'wood') {
+      // When water first touches wood, set it to decay timer (negative value indicates decay state)
+      if (woodHealthGrid[waterRow][col] > 0) {
+        // Wood just touched water - start decay timer
+        console.log("Wood at", waterRow, col, "starting decay");
+        woodHealthGrid[waterRow][col] = -WOOD_DECAY_TIME; // negative value = decay countdown
+      }
+    }
+  }
+}
 
-      if (woodHealthGrid[waterRow][col] <= 0) {
-        // Wood is fully degraded
-        if (currentFlag === 1) {
-          // Flag = 1: Replace degraded wood with water
-          gameGrid[waterRow][col] = 'water';
+function updateWoodDecay() {
+  // Update decay countdown for all decaying wood (every frame)
+  for (let row = 0; row < mapRows; row++) {
+    for (let col = 0; col < mapCols; col++) {
+      if (gameGrid[row][col] === 'wood' && woodHealthGrid[row][col] < 0) {
+        // Wood is decaying - count up toward 0
+        woodHealthGrid[row][col] += 16.67; // ~60fps, increment each frame
+
+        if (woodHealthGrid[row][col] >= 0) {
+          // Decay time is over - wood can no longer hold water
+          console.log("Wood decay finished at", row, col, "- removing wood");
+
+          // Wood disappears and becomes water (loses ability to hold)
+          gameGrid[row][col] = 'water';
+          woodHealthGrid[row][col] = 0;
+
+          // Update column blocking since this wood is gone
+          updateColumnBlocking();
         }
-        // Flag = 0: Wood stays degraded (brown) but doesn't become water
-        woodHealthGrid[waterRow][col] = 0;
       }
     }
   }
@@ -473,7 +522,7 @@ function riseWaterLevel() {
       if (!columnBlocked[col]) {
         // In non-blocked columns, apply uniform water level
         if (row >= mapRows - waterLevel) {
-          if (gameGrid[row][col] !== 'stone') {
+          if (gameGrid[row][col] !== 'stone' && gameGrid[row][col] !== 'wood') {
             gameGrid[row][col] = 'water';
           }
         }
@@ -485,13 +534,13 @@ function riseWaterLevel() {
 }
 
 function updateColumnBlocking() {
-  // Check each column for stone barriers that block water rising
+  // Check each column for stone barriers or wood (including decaying wood) that block water rising
   for (let col = 0; col < mapCols; col++) {
     columnBlocked[col] = false;
 
-    // Check from water level upward for stone barriers
+    // Check from water level upward for stone or wood barriers
     for (let row = mapRows - waterLevel; row < mapRows; row++) {
-      if (gameGrid[row][col] === 'stone') {
+      if (gameGrid[row][col] === 'stone' || gameGrid[row][col] === 'wood') {
         columnBlocked[col] = true;
         break;
       }
@@ -500,18 +549,41 @@ function updateColumnBlocking() {
 }
 
 function checkGameOverConditions() {
-  // Check time limit - WIN condition
+  // Check time limit - Game ends at 90 seconds
   let timeElapsed = millis() - gameStartTime;
-  if (timeElapsed >= 90000) { // 90 seconds - PLAYER WINS!
-    gameState = "win";
+  if (timeElapsed >= 90000) { // 90 seconds - Game ends!
+    // Calculate land saved percentage
+    let totalCells = mapRows * mapCols;
+    let waterCells = 0;
+
+    for (let row = 0; row < mapRows; row++) {
+      for (let col = 0; col < mapCols; col++) {
+        if (gameGrid[row][col] === 'water') {
+          waterCells++;
+        }
+      }
+    }
+
+    let landCells = totalCells - waterCells;
+    let landSavedPercentage = (landCells / totalCells) * 100;
+
+    // Determine win or lose based on land saved
+    if (landSavedPercentage > 70) {
+      gameState = "win";
+      gameWon = true;
+    } else {
+      gameState = "gameOver";
+      gameWon = false;
+    }
     return;
   }
 
-  // Check if water reached top row - LOSE condition
+  // Check if water reached top row - Early LOSE condition
   for (let col = 0; col < mapCols; col++) {
     if (gameGrid[0][col] === 'water') {
       gameState = "gameOver";
       gameOverReason = "Water reached the top! The city is drowned!";
+      gameWon = false;
       return;
     }
   }
@@ -587,7 +659,7 @@ function drawGameOverScreen() {
   textAlign(CENTER, CENTER);
   textSize(48);
   textFont(titleFont); // NEW
-  text("YOU FAIL", width/2, height/2 - 60);
+  text("ISLAND SUBMERGED", width/2, height/2 - 60);
 
   textSize(18);
   textFont(mainFont); // NEW
@@ -615,7 +687,7 @@ function drawWinScreen() {
   textAlign(CENTER, CENTER);
   textSize(48);
   textFont(titleFont); // NEW
-  text("SUCCESS!", width/2, height/2 - 60);
+  text("ISLAND SAVED", width/2, height/2 - 60);
 
   textSize(18);
   textFont(mainFont); // NEW
