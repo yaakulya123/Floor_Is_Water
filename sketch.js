@@ -645,8 +645,8 @@ function drawCreditsScreen() {
   textSize(18);
   text("Yaakulya - Mechanics and designed gameplay", width/2, height/2 - 20);
   text("Ahmad - Story, Sound, Visualisations, Asset management", width/2, height/2 + 20);
-  text("Kenney - Asset", width/2, height/2 + 20);
-  text("David Mason - OST", width/2, height/2 + 20);
+  text("Kenney - Asset", width/2, height/2 + 40);
+  text("David Mason - OST", width/2, height/2 + 60);
 
   textSize(16);
   text("Click anywhere to return", width/2, height/2 + 80);
