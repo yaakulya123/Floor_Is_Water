@@ -40,8 +40,8 @@ const WATER_TILE = 340;
 const WOOD_RESISTANCE_TIME = 5000; // 5 seconds for wood degradation
 const WOOD_DECAY_TIME = 4000; // 4 seconds for decayed wood to remain visible
 const WATER_TICK = 2500;
-const WOOD_TICK = 4000;
-const STONE_TICK = 4500;
+const WOOD_TICK = 3000;
+const STONE_TICK = 3250;
 const START_WOOD_AMOUNT = 10;
 const START_STONE_AMOUNT = 10;
 
