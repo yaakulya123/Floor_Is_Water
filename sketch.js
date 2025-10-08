@@ -18,7 +18,7 @@ let woodHealthGrid = []; // tracks wood barrier health
 let waterTimer = 0;
 let woodTimer = 0;
 let stoneTimer = 0;
-let woodAvailable = 10;
+let woodAvailable = 20;
 let stoneAvailable = 10;
 let currentFlag = 0; // current water level flag
 let waterLevel = 0; // global water level (row from bottom)
@@ -42,7 +42,7 @@ const WOOD_DECAY_TIME = 4000; // 4 seconds for decayed wood to remain visible
 const WATER_TICK = 3500;
 const WOOD_TICK = 3000;
 const STONE_TICK = 3250;
-const START_WOOD_AMOUNT = 10;
+const START_WOOD_AMOUNT = 20;
 const START_STONE_AMOUNT = 10;
 
 // NEW: User Interface
