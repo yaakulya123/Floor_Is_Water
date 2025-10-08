@@ -69,7 +69,7 @@ function preload() {
   );
 
   // Load sound files (local)
-  mainThemeMusic = loadSound("mainThemeMusic.mp3",
+  mainThemeMusic = loadSound("mainThemeMusicAlt.mp3",
     () => console.log("Main theme loaded"),
     () => console.log("Failed to load main theme")
   );
@@ -79,7 +79,7 @@ function preload() {
     () => console.log("Failed to load hover sound")
   );
 
-  placeWoodSound = loadSound("placeWoodSound.ogg",
+  placeWoodSound = loadSound("placeWoodSoundAlt.ogg",
     () => console.log("Wood placement sound loaded"),
     () => console.log("Failed to load wood placement sound")
   );
@@ -645,6 +645,8 @@ function drawCreditsScreen() {
   textSize(18);
   text("Yaakulya - Mechanics and designed gameplay", width/2, height/2 - 20);
   text("Ahmad - Story, Sound, Visualisations, Asset management", width/2, height/2 + 20);
+  text("Kenney - Asset", width/2, height/2 + 20);
+  text("David Mason - OST", width/2, height/2 + 20);
 
   textSize(16);
   text("Click anywhere to return", width/2, height/2 + 80);
