@@ -18,8 +18,8 @@ let woodHealthGrid = []; // tracks wood barrier health
 let waterTimer = 0;
 let woodTimer = 0;
 let stoneTimer = 0;
-let woodAvailable = 0;
-let stoneAvailable = 0;
+let woodAvailable = 10;
+let stoneAvailable = 10;
 let currentFlag = 0; // current water level flag
 let waterLevel = 0; // global water level (row from bottom)
 let columnBlocked = []; // tracks which columns have stone barriers
@@ -42,6 +42,8 @@ const WOOD_DECAY_TIME = 4000; // 4 seconds for decayed wood to remain visible
 const WATER_TICK = 2500;
 const WOOD_TICK = 4000;
 const STONE_TICK = 4500;
+const START_WOOD_AMOUNT = 10;
+const START_STONE_AMOUNT = 10;
 
 // NEW: User Interface
 let mainFont;
@@ -384,8 +386,8 @@ function resetGame() {
   gameOverReason = "";
   hoveredRow = -1;
   hoveredCol = -1;
-  woodAvailable = 0;
-  stoneAvailable = 0;
+  woodAvailable = START_WOOD_AMOUNT;
+  stoneAvailable = START_STONE_AMOUNT;
   currentFlag = 0;
   waterLevel = Math.floor(mapRows / 6);
 
