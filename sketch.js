@@ -279,7 +279,7 @@ function drawHUD() {
 
   // Display land saved percentage with color coding
   let percentColor;
-  if (landPercentage > 70) {
+  if (landPercentage > 65) {
     percentColor = color(100, 255, 100); // Green - winning
   } else if (landPercentage > 50) {
     percentColor = color(255, 255, 100); // Yellow - close
@@ -570,7 +570,7 @@ function checkGameOverConditions() {
     let landSavedPercentage = (landCells / totalCells) * 100;
 
     // Determine win or lose based on land saved
-    if (landSavedPercentage > 70) {
+    if (landSavedPercentage > 65) {
       gameState = "win";
       gameWon = true;
     } else {

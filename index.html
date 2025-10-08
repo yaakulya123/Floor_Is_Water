@@ -202,6 +202,33 @@
             border: 1px solid rgba(30, 144, 255, 0.2);
         }
 
+        /* Demo Video Section */
+        .video-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(30, 144, 255, 0.3);
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 15px;
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
         /* Features Grid */
         .features-grid {
             display: grid;
@@ -425,6 +452,21 @@
         </div>
     </section>
 
+    <!-- Demo Video Section -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title fade-in">Watch the Game in Action</h2>
+            <div class="video-container fade-in">
+                <div class="video-wrapper">
+                    <iframe src="https://www.youtube.com/embed/pCUWJlha63g"
+                            allowfullscreen
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Features Section -->
     <section class="section">
         <div class="container">
@@ -453,7 +495,7 @@
                 <div class="feature-card fade-in">
                     <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
                     <h3>Real-Time Statistics</h3>
-                    <p>Track your progress with live percentage indicators showing how much land you've saved. Stay above 70% to win!</p>
+                    <p>Track your progress with live percentage indicators showing how much land you've saved. Stay above 65% to win!</p>
                 </div>
                 <div class="feature-card fade-in">
                     <div class="feature-icon"><i class="fas fa-crosshairs"></i></div>
@@ -492,12 +534,12 @@
             <div class="victory-cards">
                 <div class="victory-card win fade-in">
                     <h3><i class="fas fa-trophy"></i> ISLAND SAVED</h3>
-                    <p>Save more than <strong>70%</strong> of the land</p>
+                    <p>Save more than <strong>65%</strong> of the land</p>
                     <p style="margin-top: 15px;">Your strategic planning and quick reflexes paid off. The citizens celebrate as the majority of the city remains above water. You are a hero!</p>
                 </div>
                 <div class="victory-card lose fade-in">
                     <h3><i class="fas fa-skull-crossbones"></i> ISLAND SUBMERGED</h3>
-                    <p>Save less than <strong>70%</strong> of the land</p>
+                    <p>Save less than <strong>65%</strong> of the land</p>
                     <p style="margin-top: 15px;">Despite your efforts, the flood consumed too much territory. The city sinks into the depths, and the people must evacuate. Perhaps next time...</p>
                 </div>
             </div>
